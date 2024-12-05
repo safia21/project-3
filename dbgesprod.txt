@@ -1,0 +1,103 @@
+
+pour tavailler cette interface ouvrir wampserveur et aprés ouvrir mysql console et  créer base 
+CREATE DATABASE IF NOT EXISTS dbgesprod;
+
+USE dbgesprod;
+
+
+--
+-- Base de données: `dbgesprod`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `produit`
+--
+
+CREATE TABLE IF NOT EXISTS `produit` (
+  `nomprod` varchar(40) NOT NULL,
+  `prix` decimal(6,2) NOT NULL,
+  `qtedispo` int(11) NOT NULL,
+  PRIMARY KEY (`nomprod`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Contenu de la table `produit`
+--
+
+INSERT INTO `produit` (`nomprod`, `prix`, `qtedispo`) VALUES
+('CHOCO_GB', '3.00', 50),
+('LAIT_PD_GB', '24.00', 25),
+('LAIT_PD_PB', '11.00', 28),
+('NESCAFE_BM', '1.50', 29),
+('NESCAFE_BP', '1.00', 0),
+('PQ_SUCRE', '2.00', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Doublure de structure pour la vue `som`
+--
+CREATE TABLE IF NOT EXISTS `som` (
+`idv` int(11)
+,`produit` varchar(40)
+,`quantite` int(11)
+,`prix` decimal(6,2)
+,`montant` decimal(16,2)
+,`datev` date
+);
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `vente`
+--
+
+CREATE TABLE IF NOT EXISTS `vente` (
+  `idv` int(11) NOT NULL,
+  `produit` varchar(40) NOT NULL,
+  `quantite` int(11) NOT NULL,
+  `datev` date NOT NULL,
+  PRIMARY KEY (`idv`,`produit`),
+  KEY `fk` (`produit`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Contenu de la table `vente`
+--
+
+INSERT INTO `vente` (`idv`, `produit`, `quantite`, `datev`) VALUES
+(1, 'CHOCO_GB', 3, '2020-06-29'),
+(1, 'LAIT_PD_GB', 1, '2020-06-29'),
+(1, 'NESCAFE_BM', 2, '2020-06-29'),
+(2, 'LAIT_PD_GB', 2, '2020-06-29'),
+(2, 'LAIT_PD_PB', 1, '2020-06-29'),
+(3, 'LAIT_PD_PB', 2, '2020-06-29'),
+(3, 'NESCAFE_BM', 1, '2020-06-29'),
+(4, 'LAIT_PD_PB', 5, '2020-06-29'),
+(5, 'NESCAFE_BM', 1, '2020-06-30'),
+(6, 'LAIT_PD_PB', 2, '2020-06-30'),
+(6, 'NESCAFE_BM', 1, '2020-06-30'),
+(7, 'CHOCO_GB', 2, '2020-06-30'),
+(8, 'LAIT_PD_GB', 1, '2020-06-30'),
+(8, 'NESCAFE_BM', 2, '2020-06-30');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la vue `som`
+--
+DROP TABLE IF EXISTS `som`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `som` AS select `vente`.`idv` AS `idv`,`vente`.`produit` AS `produit`,`vente`.`quantite` AS `quantite`,`produit`.`prix` AS `prix`,(`vente`.`quantite` * `produit`.`prix`) AS `montant`,`vente`.`datev` AS `datev` from (`produit` join `vente` on((`produit`.`nomprod` = `vente`.`produit`)));
+
+--
+-- Contraintes pour les tables exportées
+--
+
+--
+-- Contraintes pour la table `vente`
+--
+ALTER TABLE `vente`
+  ADD CONSTRAINT `fk` FOREIGN KEY (`produit`) REFERENCES `produit` (`nomprod`);
+
